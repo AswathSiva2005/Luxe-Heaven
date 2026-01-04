@@ -2,6 +2,13 @@ const mongoose = require('mongoose');
 
 const productSchema = mongoose.Schema(
   {
+    productId: {
+      type: String,
+      required: [true, 'Please add a product ID'],
+      unique: true,
+      trim: true,
+      uppercase: true,
+    },
     name: {
       type: String,
       required: [true, 'Please add a product name'],
@@ -20,6 +27,10 @@ const productSchema = mongoose.Schema(
       type: String,
       required: [true, 'Please add a category'],
       enum: ['t-shirts', 'pants', 'sneakers'],
+    },
+    releaseDate: {
+      type: Date,
+      required: [true, 'Please add a release date'],
     },
     images: [
       {

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import { Container, Alert } from 'react-bootstrap';
 import { motion } from 'framer-motion';
 import api from '../services/api';
 import ProductDetail from '../components/products/ProductDetail';
@@ -17,7 +18,12 @@ const ProductDetailPage = () => {
         const response = await api.get(`/products/${id}`);
         setProduct(response.data);
       } catch (error) {
-        toast.error('Product not found');
+        if (error.response?.status === 404) {
+          // Product was deleted or doesn't exist
+          setProduct(null);
+        } else {
+          toast.error('Failed to load product');
+        }
       } finally {
         setLoading(false);
       }
@@ -29,11 +35,14 @@ const ProductDetailPage = () => {
     return <Loading />;
   }
 
-  if (!product) {
+  if (!product && !loading) {
     return (
-      <div className="text-center py-5">
-        <p>Product not found</p>
-      </div>
+      <Container className="my-5">
+        <Alert variant="danger">
+          <Alert.Heading>Product Not Found</Alert.Heading>
+          <p>This product may have been removed or does not exist.</p>
+        </Alert>
+      </Container>
     );
   }
 

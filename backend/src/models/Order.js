@@ -74,7 +74,7 @@ const orderSchema = mongoose.Schema(
     paymentMethod: {
       type: String,
       required: true,
-      enum: ['stripe', 'paypal'],
+      enum: ['cod', 'gpay', 'stripe', 'paypal'],
     },
     paymentResult: paymentResultSchema,
     itemsPrice: {

@@ -12,9 +12,18 @@ const ProductDetail = ({ product }) => {
   const [quantity, setQuantity] = useState(1);
   const { addToCart } = useCart();
 
+  // Check if product exists and is available
+  const isProductAvailable = product && product.stock > 0;
+  const isProductDeleted = !product;
+
   const handleAddToCart = async () => {
     if (!selectedSize || !selectedColor) {
       toast.error('Please select size and color');
+      return;
+    }
+
+    if (!isProductAvailable) {
+      toast.error('Product is not available');
       return;
     }
 
@@ -67,7 +76,20 @@ const ProductDetail = ({ product }) => {
             <h3 className="mb-4 text-primary">${product.price}</h3>
             <p className="text-muted mb-4">{product.description}</p>
 
-            {product.stock > 0 ? (
+            {isProductDeleted ? (
+              <Alert variant="danger">
+                <Alert.Heading>Product Not Available</Alert.Heading>
+                <p>This product has been removed from our catalog.</p>
+                <Button
+                  variant="secondary"
+                  size="lg"
+                  className="w-100 mb-3"
+                  disabled
+                >
+                  Stock Unavailable
+                </Button>
+              </Alert>
+            ) : isProductAvailable ? (
               <>
                 <Form.Group className="mb-3">
                   <Form.Label>Size</Form.Label>
@@ -122,7 +144,18 @@ const ProductDetail = ({ product }) => {
                 </Button>
               </>
             ) : (
-              <Alert variant="danger">Out of Stock</Alert>
+              <Alert variant="warning">
+                <Alert.Heading>Out of Stock</Alert.Heading>
+                <p>This product is currently out of stock.</p>
+                <Button
+                  variant="secondary"
+                  size="lg"
+                  className="w-100 mb-3"
+                  disabled
+                >
+                  Stock Unavailable
+                </Button>
+              </Alert>
             )}
 
             <div className="mt-4">

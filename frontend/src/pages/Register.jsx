@@ -11,6 +11,7 @@ const Register = () => {
     email: '',
     password: '',
     confirmPassword: '',
+    role: 'user',
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -41,13 +42,19 @@ const Register = () => {
     setLoading(true);
 
     try {
-      await register({
+      const userData = await register({
         name: formData.name,
         email: formData.email,
         password: formData.password,
+        role: formData.role,
       });
       toast.success('Registration successful!');
-      navigate('/');
+      // Redirect admin to admin page, user to home
+      if (userData.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/');
+      }
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed. Please try again.');
     } finally {
@@ -113,6 +120,30 @@ const Register = () => {
                       required
                       placeholder="Confirm your password"
                     />
+                  </Form.Group>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Select Role</Form.Label>
+                    <div className="d-flex gap-2">
+                      <Button
+                        type="button"
+                        variant={formData.role === 'user' ? 'dark' : 'outline-dark'}
+                        className="flex-fill"
+                        onClick={() => setFormData({ ...formData, role: 'user' })}
+                      >
+                        User
+                      </Button>
+                      <Button
+                        type="button"
+                        variant={formData.role === 'admin' ? 'dark' : 'outline-dark'}
+                        className="flex-fill"
+                        onClick={() => setFormData({ ...formData, role: 'admin' })}
+                      >
+                        Admin
+                      </Button>
+                    </div>
+                    <Form.Text className="text-muted">
+                      Selected: <strong>{formData.role.charAt(0).toUpperCase() + formData.role.slice(1)}</strong>
+                    </Form.Text>
                   </Form.Group>
                   <Button
                     variant="dark"

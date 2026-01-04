@@ -20,7 +20,7 @@ const Checkout = () => {
       zipCode: '',
       country: '',
     },
-    paymentMethod: 'stripe',
+    paymentMethod: 'cod',
   });
   const [processing, setProcessing] = useState(false);
   const [orderCreated, setOrderCreated] = useState(false);
@@ -75,28 +75,19 @@ const Checkout = () => {
         orderId = order._id;
       }
 
-      // Handle PayPal payment
-      if (method === 'paypal') {
-        try {
-          const paymentResponse = await api.post('/payments/paypal/create', {
-            amount: total,
-            orderId: orderId,
-          });
-
-          // Redirect to PayPal
-          window.location.href = paymentResponse.data.approvalUrl;
-          return;
-        } catch (error) {
-          toast.error('Failed to initialize PayPal payment');
-          setProcessing(false);
-          return;
-        }
+      // Handle Cash on Delivery
+      if (method === 'cod') {
+        toast.success('Order placed successfully! You will pay on delivery.');
+        navigate(`/profile`);
+        return;
       }
 
-      // For Stripe, payment is already processed via webhook
-      if (paymentData && paymentData.status === 'succeeded') {
-        toast.success('Order placed successfully!');
-        navigate(`/profile`);
+      // Handle GPay
+      if (method === 'gpay') {
+        if (paymentData && paymentData.status === 'succeeded') {
+          toast.success('Payment confirmed! Order placed successfully.');
+          navigate(`/profile`);
+        }
       }
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to process payment');

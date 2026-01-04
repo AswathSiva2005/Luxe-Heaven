@@ -8,14 +8,41 @@ const getCart = async (req, res) => {
   try {
     let cart = await Cart.findOne({ user: req.user._id }).populate(
       'items.product',
-      'name price images'
+      'name price images stock'
     );
 
     if (!cart) {
       cart = await Cart.create({ user: req.user._id, items: [] });
     }
 
-    res.json(cart);
+    // Calculate total and mark unavailable items
+    let total = 0;
+    cart.items = cart.items.map((item) => {
+      if (item.product) {
+        // Product exists, check stock
+        const isAvailable = item.product.stock > 0;
+        total += item.price * item.quantity;
+        return {
+          ...item.toObject(),
+          isAvailable,
+          productExists: true,
+        };
+      } else {
+        // Product was deleted
+        return {
+          ...item.toObject(),
+          isAvailable: false,
+          productExists: false,
+          product: null,
+        };
+      }
+    });
+
+    res.json({
+      ...cart.toObject(),
+      items: cart.items,
+      total,
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -63,9 +90,18 @@ const addToCart = async (req, res) => {
     }
 
     await cart.save();
-    await cart.populate('items.product', 'name price images');
+    await cart.populate('items.product', 'name price images stock');
 
-    res.json(cart);
+    // Calculate total
+    let total = 0;
+    cart.items.forEach((item) => {
+      total += item.price * item.quantity;
+    });
+
+    res.json({
+      ...cart.toObject(),
+      total,
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -95,9 +131,18 @@ const updateCartItem = async (req, res) => {
 
     item.quantity = quantity;
     await cart.save();
-    await cart.populate('items.product', 'name price images');
+    await cart.populate('items.product', 'name price images stock');
 
-    res.json(cart);
+    // Calculate total
+    let total = 0;
+    cart.items.forEach((item) => {
+      total += item.price * item.quantity;
+    });
+
+    res.json({
+      ...cart.toObject(),
+      total,
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -119,9 +164,18 @@ const removeFromCart = async (req, res) => {
     );
 
     await cart.save();
-    await cart.populate('items.product', 'name price images');
+    await cart.populate('items.product', 'name price images stock');
 
-    res.json(cart);
+    // Calculate total
+    let total = 0;
+    cart.items.forEach((item) => {
+      total += item.price * item.quantity;
+    });
+
+    res.json({
+      ...cart.toObject(),
+      total,
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

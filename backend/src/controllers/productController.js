@@ -23,11 +23,28 @@ const getProducts = async (req, res) => {
     }
 
     if (search) {
-      query.$text = { $search: search };
+      // Search by product name, description, productId, or price
+      const searchRegex = new RegExp(search, 'i');
+      const searchNumber = parseFloat(search);
+      
+      const searchConditions = [
+        { name: searchRegex },
+        { description: searchRegex },
+        { productId: searchRegex },
+      ];
+      
+      // If search is a number, also search by price
+      if (!isNaN(searchNumber)) {
+        searchConditions.push({ price: searchNumber });
+      }
+      
+      query.$or = searchConditions;
     }
 
     if (minPrice || maxPrice) {
-      query.price = {};
+      if (!query.price) {
+        query.price = {};
+      }
       if (minPrice) query.price.$gte = Number(minPrice);
       if (maxPrice) query.price.$lte = Number(maxPrice);
     }
@@ -79,9 +96,19 @@ const createProduct = async (req, res) => {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const product = await Product.create(req.body);
+    // Ensure images is an array
+    const productData = {
+      ...req.body,
+      images: Array.isArray(req.body.images) ? req.body.images : [req.body.images].filter(Boolean),
+      productId: req.body.productId?.toUpperCase().trim(),
+    };
+
+    const product = await Product.create(productData);
     res.status(201).json(product);
   } catch (error) {
+    if (error.code === 11000) {
+      return res.status(400).json({ message: 'Product ID already exists' });
+    }
     res.status(500).json({ message: error.message });
   }
 };
@@ -91,16 +118,34 @@ const createProduct = async (req, res) => {
 // @access  Private/Admin
 const updateProduct = async (req, res) => {
   try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
     const product = await Product.findById(req.params.id);
 
     if (product) {
-      Object.assign(product, req.body);
+      // Ensure images is an array
+      const updateData = {
+        ...req.body,
+        images: Array.isArray(req.body.images) ? req.body.images : [req.body.images].filter(Boolean),
+      };
+      
+      if (updateData.productId) {
+        updateData.productId = updateData.productId.toUpperCase().trim();
+      }
+
+      Object.assign(product, updateData);
       const updatedProduct = await product.save();
       res.json(updatedProduct);
     } else {
       res.status(404).json({ message: 'Product not found' });
     }
   } catch (error) {
+    if (error.code === 11000) {
+      return res.status(400).json({ message: 'Product ID already exists' });
+    }
     res.status(500).json({ message: error.message });
   }
 };

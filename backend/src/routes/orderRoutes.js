@@ -6,6 +6,7 @@ const {
   getOrder,
   getAllOrders,
   updateOrderStatus,
+  confirmGPayPayment,
 } = require('../controllers/orderController');
 const { protect } = require('../middleware/auth');
 const admin = require('../middleware/admin');
@@ -17,6 +18,7 @@ router.get('/myorders', getMyOrders);
 router.get('/all', admin, getAllOrders);
 router.get('/:id', getOrder);
 router.put('/:id/status', admin, updateOrderStatus);
+router.put('/:id/confirm-gpay', confirmGPayPayment);
 
 module.exports = router;
 

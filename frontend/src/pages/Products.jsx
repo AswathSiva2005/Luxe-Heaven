@@ -54,22 +54,48 @@ const Products = () => {
         <h1 className="mb-4">Our Products</h1>
 
         <Row className="mb-4">
-          <Col md={6}>
+          <Col md={8}>
             <Form onSubmit={handleSearch}>
               <Form.Group className="d-flex">
                 <Form.Control
                   type="text"
-                  placeholder="Search products..."
+                  placeholder="Search by product name, ID, description, or price..."
                   value={search}
-                  onChange={(e) => setSearch(e.target.value)}
+                  onChange={(e) => {
+                    setSearch(e.target.value);
+                    if (e.target.value === '') {
+                      setPage(1);
+                      fetchProducts();
+                    }
+                  }}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      handleSearch(e);
+                    }
+                  }}
                 />
                 <Button type="submit" variant="dark" className="ms-2">
                   Search
                 </Button>
+                {search && (
+                  <Button
+                    variant="outline-secondary"
+                    className="ms-2"
+                    onClick={() => {
+                      setSearch('');
+                      setPage(1);
+                    }}
+                  >
+                    Clear
+                  </Button>
+                )}
               </Form.Group>
+              <Form.Text className="text-muted">
+                Search by product name, description, product ID, or price amount
+              </Form.Text>
             </Form>
           </Col>
-          <Col md={6}>
+          <Col md={4}>
             <Form.Select
               value={category}
               onChange={(e) => {
@@ -80,7 +106,7 @@ const Products = () => {
               <option value="">All Categories</option>
               {CATEGORIES.map((cat) => (
                 <option key={cat} value={cat}>
-                  {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                  {cat.charAt(0).toUpperCase() + cat.slice(1).replace('-', ' ')}
                 </option>
               ))}
             </Form.Select>

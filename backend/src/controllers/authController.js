@@ -19,7 +19,7 @@ const registerUser = async (req, res) => {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { name, email, password } = req.body;
+    const { name, email, password, role } = req.body;
 
     // Check if user exists
     const userExists = await User.findOne({ email });
@@ -32,6 +32,7 @@ const registerUser = async (req, res) => {
       name,
       email,
       password,
+      role: role || 'user', // Default to 'user' if not provided
     });
 
     if (user) {

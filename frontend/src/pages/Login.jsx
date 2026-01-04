@@ -28,9 +28,14 @@ const Login = () => {
     setLoading(true);
 
     try {
-      await login(formData);
+      const userData = await login(formData);
       toast.success('Login successful!');
-      navigate('/');
+      // Redirect admin to admin page, user to home
+      if (userData.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/');
+      }
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed. Please try again.');
     } finally {
