@@ -1,0 +1,29 @@
+===========================================
+QUICK START GUIDE - BACKEND
+===========================================
+
+CORRECT COMMAND TO START BACKEND:
+----------------------------------
+npm run dev
+
+OR
+
+nodemon src/server.js
+
+===========================================
+IMPORTANT: Update MongoDB Connection String
+===========================================
+
+1. Open: backend/.env
+2. Find the line: MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/database?retryWrites=true&w=majority
+3. Replace it with YOUR actual MongoDB Atlas connection string
+
+Your connection string should look like:
+mongodb+srv://yourusername:yourpassword@cluster0.xxxxx.mongodb.net/luxeheaven?retryWrites=true&w=majority
+
+===========================================
+After updating .env, run:
+npm run dev
+
+===========================================
+
