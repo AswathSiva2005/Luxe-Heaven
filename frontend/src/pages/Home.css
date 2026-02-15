@@ -1,0 +1,116 @@
+.home {
+  font-family: "Poppins", sans-serif;
+}
+
+/* HERO SECTION */
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  background: linear-gradient(135deg, #6a11cb, #2575fc);
+  color: white;
+  padding: 40px 20px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 20px;
+  margin-bottom: 40px;
+}
+
+.hero-text h1 {
+  font-size: 36px;
+  margin-bottom: 12px;
+}
+
+.hero-text p {
+  font-size: 18px;
+  margin-bottom: 20px;
+}
+
+.hero-text button {
+  background: #ffeb3b;
+  border: none;
+  color: #222;
+  font-weight: 600;
+  padding: 12px 30px;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.hero-text button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(255, 235, 59, 0.5);
+}
+
+/* MARQUEE */
+.hero-marquee {
+  width: 100%;
+  overflow: hidden;
+  margin-top: 30px;
+}
+
+.marquee-track {
+  display: flex;
+  width: calc(200%); /* double for seamless scroll */
+  animation: scroll 15s linear infinite;
+}
+
+.marquee-track img {
+  width: 250px;
+  height: 250px;
+  object-fit: cover;
+  margin: 0 15px;
+  border-radius: 15px;
+  border: 3px solid #fff;
+  transition: transform 0.3s;
+}
+
+.marquee-track img:hover {
+  transform: scale(1.05);
+}
+
+/* SCROLL ANIMATION */
+@keyframes scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* FEATURED GRID */
+.dress-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.dress-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 15px;
+  text-align: center;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  transition: transform 0.3s;
+}
+
+.dress-card:hover {
+  transform: translateY(-5px);
+}
+
+.dress-card img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+.dress-card h4 {
+  margin-bottom: 5px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.dress-card p {
+  color: #555;
+  font-weight: 500;
+}
