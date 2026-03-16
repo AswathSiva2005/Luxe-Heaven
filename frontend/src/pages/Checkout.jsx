@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import api from "../services/api";
 import { useNavigate, useLocation } from "react-router-dom";
+import { buildUploadUrl } from "../utils/assetUrl";
 import "./Checkout.css";
 
 export default function Checkout() {
@@ -402,7 +403,7 @@ export default function Checkout() {
               {items.map((item, index) => (
                 <div key={index} className="order-item">
                   <img
-                    src={`http://localhost:5000/uploads/${item.productId?.image}`}
+                    src={buildUploadUrl(`uploads/${item.productId?.image}`)}
                     alt={item.productId?.name}
                   />
                   <div className="order-item-info">

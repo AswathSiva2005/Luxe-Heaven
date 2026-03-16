@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 import { motion } from "framer-motion";
+import { buildUploadUrl } from "../utils/assetUrl";
 
 const gridVariants = {
   hidden: { opacity: 0 },
@@ -218,7 +219,7 @@ export default function Products() {
             >
               <div className="h-56 overflow-hidden bg-slate-100">
                 <img
-                  src={`http://localhost:5000/uploads/${p.image}`}
+                  src={buildUploadUrl(`uploads/${p.image}`)}
                   alt={p.name}
                   className="h-full w-full object-cover"
                   onError={(e) => {

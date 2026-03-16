@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../services/api";
+import { buildUploadUrl } from "../utils/assetUrl";
 import "./ProductDetails.css";
 
 const FALLBACK_IMAGE = "https://via.placeholder.com/720x720?text=No+Image";
@@ -114,7 +115,7 @@ export default function ProductDetails() {
           <div className="product-gallery-panel">
             <div className="main-product-image">
               <img
-                src={galleryImages[selectedImage] ? `http://localhost:5000/uploads/${galleryImages[selectedImage]}` : FALLBACK_IMAGE}
+                src={galleryImages[selectedImage] ? buildUploadUrl(`uploads/${galleryImages[selectedImage]}`) : FALLBACK_IMAGE}
                 alt={product.name}
                 onError={(e) => {
                   e.target.src = FALLBACK_IMAGE;
@@ -131,7 +132,7 @@ export default function ProductDetails() {
                     onClick={() => setSelectedImage(index)}
                   >
                     <img
-                      src={`http://localhost:5000/uploads/${image}`}
+                      src={buildUploadUrl(`uploads/${image}`)}
                       alt={`${product.name} ${index + 1}`}
                       onError={(e) => {
                         e.target.src = FALLBACK_IMAGE;

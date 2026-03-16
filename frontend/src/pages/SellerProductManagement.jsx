@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
+import { buildUploadUrl } from "../utils/assetUrl";
 import "./SellerProductManagement.css";
 
 const initialForm = {
@@ -653,7 +654,7 @@ export default function SellerProductManagement() {
                 <div className="image-previews">
                   {existingImages.map((img, index) => (
                     <div key={index} className="image-preview">
-                      <img src={`http://localhost:5000/uploads/${img}`} alt={`Existing ${index + 1}`} />
+                      <img src={buildUploadUrl(`uploads/${img}`)} alt={`Existing ${index + 1}`} />
                     </div>
                   ))}
                 </div>
@@ -772,7 +773,7 @@ export default function SellerProductManagement() {
               <div key={product._id} className="product-card">
                 <div className="product-image-wrapper">
                   <img
-                    src={`http://localhost:5000/uploads/${product.image}`}
+                    src={buildUploadUrl(`uploads/${product.image}`)}
                     alt={product.name}
                   />
                   {product.stockQuantity <= 0 && (

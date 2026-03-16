@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
+import { buildUploadUrl } from "../utils/assetUrl";
 import "./StockHistory.css";
 
 export default function StockHistory() {
@@ -86,7 +87,7 @@ export default function StockHistory() {
               <div className="history-header">
                 <div className="product-info">
                   <img
-                    src={`http://localhost:5000/uploads/${entry.productId?.image}`}
+                    src={buildUploadUrl(`uploads/${entry.productId?.image}`)}
                     alt={entry.productId?.name}
                     onError={(e) => {
                       e.target.src = "https://via.placeholder.com/50x50?text=No+Image";

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../services/api";
+import { buildUploadUrl } from "../utils/assetUrl";
 import "./SellerOrderManagement.css";
 
 export default function SellerOrderManagement() {
@@ -147,7 +148,7 @@ export default function SellerOrderManagement() {
                       {order.items?.map((item, idx) => (
                         <div key={idx} className="item">
                           <img
-                            src={`http://localhost:5000/uploads/${item.productId?.image}`}
+                            src={buildUploadUrl(`uploads/${item.productId?.image}`)}
                             alt={item.productId?.name}
                           />
                           <div className="item-info">

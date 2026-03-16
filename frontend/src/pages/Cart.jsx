@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "../services/api";
 import { useNavigate } from "react-router-dom";
+import { buildUploadUrl } from "../utils/assetUrl";
 import "./Cart.css";
 
 export default function Cart() {
@@ -98,7 +99,7 @@ export default function Cart() {
               <div key={item._id} className="cart-item">
                 <div className="item-image">
                   <img
-                    src={`http://localhost:5000/uploads/${item.productId?.image}`}
+                    src={buildUploadUrl(`uploads/${item.productId?.image}`)}
                     alt={item.productId?.name}
                   />
                 </div>

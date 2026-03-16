@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
+import { buildUploadUrl } from "../utils/assetUrl";
 import "./Orders.css";
 
 export default function Orders() {
@@ -96,7 +97,7 @@ export default function Orders() {
                     {order.items?.slice(0, 3).map((item, idx) => (
                       <img
                         key={idx}
-                        src={`http://localhost:5000/uploads/${item.productId?.image}`}
+                        src={buildUploadUrl(`uploads/${item.productId?.image}`)}
                         alt={item.productId?.name}
                         className="thumb"
                         title={item.productId?.name}
@@ -140,7 +141,7 @@ export default function Orders() {
                         <div key={index} className="order-item-card">
                           <div className="order-item-image">
                             <img
-                              src={`http://localhost:5000/uploads/${item.productId?.image}`}
+                              src={buildUploadUrl(`uploads/${item.productId?.image}`)}
                               alt={item.productId?.name}
                             />
                           </div>
