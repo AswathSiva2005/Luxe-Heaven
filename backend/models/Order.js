@@ -24,6 +24,19 @@ const orderSchema = new mongoose.Schema({
     required: true
   },
   items: [orderItemSchema],
+  subTotal: {
+    type: Number,
+    required: true,
+    default: 0
+  },
+  discountPercent: {
+    type: Number,
+    default: 0
+  },
+  discountAmount: {
+    type: Number,
+    default: 0
+  },
   totalAmount: {
     type: Number,
     required: true
@@ -50,9 +63,28 @@ const orderSchema = new mongoose.Schema({
     type: String,
     enum: ["Placed", "Confirmed", "Shipped", "Delivered", "Cancelled"],
     default: "Placed"
-  }
+  },
+  // Status history for tracking
+  statusHistory: [{
+    status: {
+      type: String,
+      enum: ["Placed", "Confirmed", "Shipped", "Delivered", "Cancelled"]
+    },
+    timestamp: {
+      type: Date,
+      default: Date.now
+    },
+    notes: String,
+    updatedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User"
+    }
+  }]
 }, {
   timestamps: true
 });
+
+// Optimize lookups by user
+orderSchema.index({ userId: 1 });
 
 module.exports = mongoose.model("Order", orderSchema);

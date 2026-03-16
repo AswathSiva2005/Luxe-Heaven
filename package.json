@@ -1,0 +1,16 @@
+{
+  "name": "consultancy-project",
+  "version": "1.0.0",
+  "description": "E-Commerce Application with React Frontend and Node.js Backend",
+  "scripts": {
+    "install-all": "cd backend && npm install && cd ../frontend && npm install",
+    "dev": "concurrently \"npm run backend\" \"npm run frontend\"",
+    "backend": "cd backend && npm run dev",
+    "frontend": "cd frontend && npm run dev",
+    "start": "concurrently \"npm run backend:start\" \"npm run frontend\"",
+    "backend:start": "cd backend && npm start"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  }
+}

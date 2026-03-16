@@ -13,17 +13,25 @@ router.post("/add", auth, async (req, res) => {
       return res.status(400).json({ msg: "Product ID is required" });
     }
 
-    // Check if product exists
+    // Check if product exists and has stock
     const product = await Product.findById(productId);
     if (!product) {
       return res.status(404).json({ msg: "Product not found" });
+    }
+
+    if (product.stockQuantity <= 0) {
+      return res.status(400).json({ msg: "Product is out of stock" });
     }
 
     // Check if item already in cart
     const existingItem = await Cart.findOne({ userId, productId });
     
     if (existingItem) {
-      existingItem.quantity += quantity;
+      const requestedTotal = existingItem.quantity + quantity;
+      if (requestedTotal > product.stockQuantity) {
+        return res.status(400).json({ msg: "Cannot add more than available stock" });
+      }
+      existingItem.quantity = requestedTotal;
       await existingItem.save();
       return res.json({ msg: "Cart updated", cart: existingItem });
     }
@@ -46,7 +54,14 @@ router.get("/", auth, async (req, res) => {
   try {
     const userId = req.user.id;
     const cartItems = await Cart.find({ userId })
-      .populate("productId", "name price image description")
+      .populate({
+        path: "productId",
+        select: "name price image description stockQuantity sellerId",
+        populate: {
+          path: "sellerId",
+          select: "name email phone sellerUpiId profileImage",
+        },
+      })
       .sort({ createdAt: -1 });
 
     const items = cartItems.map(item => ({

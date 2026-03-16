@@ -9,7 +9,11 @@ export default function Checkout() {
   const token = localStorage.getItem("token");
 
   const [items, setItems] = useState([]);
+  const [quantities, setQuantities] = useState({});
   const [total, setTotal] = useState(0);
+  const [discountPercent, setDiscountPercent] = useState(0);
+  const [discountAmount, setDiscountAmount] = useState(0);
+  const [discountConfig, setDiscountConfig] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const [shippingAddress, setShippingAddress] = useState({
@@ -23,29 +27,135 @@ export default function Checkout() {
 
   const [paymentMode, setPaymentMode] = useState("COD");
 
+  const sellerPaymentDetails = items.reduce((acc, item, index) => {
+    const seller = item.productId?.sellerId;
+    if (!seller?._id || acc.some((entry) => entry.id === seller._id)) return acc;
+
+    const upiId = seller.sellerUpiId || "";
+    const sellerName = seller.name || `Seller ${index + 1}`;
+    const upiLink = upiId
+      ? `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(sellerName)}`
+      : "";
+    const qrSrc = upiLink
+      ? `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(upiLink)}`
+      : "";
+
+    acc.push({
+      id: seller._id,
+      name: sellerName,
+      phone: seller.phone || "Not available",
+      upiId,
+      qrSrc,
+    });
+
+    return acc;
+  }, []);
+
+  const outOfStockItems = items.filter((item, idx) => {
+    const stock = item.productId?.stockQuantity;
+    const qty = quantities[idx] || item.quantity || 1;
+    return typeof stock === "number" && stock < qty;
+  });
+
+  const hasOutOfStock = outOfStockItems.length > 0;
+
   useEffect(() => {
     if (!token) {
       navigate("/login");
       return;
     }
 
-    if (location.state) {
-      setItems(location.state.items || []);
-      setTotal(location.state.total || 0);
-    } else {
-      // Fetch from cart if no state
-      fetchCart();
-    }
+    const fetchDiscountConfig = async () => {
+      try {
+        const res = await api.get("/settings/discount");
+        setDiscountConfig(res.data);
+        return res.data;
+      } catch (error) {
+        console.warn("Unable to fetch discount config", error);
+        return null;
+      }
+    };
+
+    const initialize = async () => {
+      const config = await fetchDiscountConfig();
+
+      if (location.state) {
+        const initialItems = location.state.items || [];
+        setItems(initialItems);
+        initializeQuantities(initialItems);
+        const totals = computeTotals(initialItems, {}, config);
+        setTotal(totals.subTotal);
+        setDiscountPercent(totals.percent);
+        setDiscountAmount(totals.discount);
+      } else {
+        // Fetch from cart if no state
+        await fetchCart();
+      }
+    };
+
+    initialize();
   }, [token, navigate, location.state]);
+
+  const initializeQuantities = (itemsList) => {
+    const quantitiesObj = {};
+    itemsList.forEach((item, index) => {
+      quantitiesObj[index] = item.quantity || 1;
+    });
+    setQuantities(quantitiesObj);
+  };
 
   const fetchCart = async () => {
     try {
       const res = await api.get("/cart");
-      setItems(res.data.items || []);
-      setTotal(res.data.total || 0);
+      const cartItems = res.data.items || [];
+      setItems(cartItems);
+      initializeQuantities(cartItems);
+
+      const totals = computeTotals(cartItems, {}, discountConfig);
+      setTotal(totals.subTotal);
+      setDiscountPercent(totals.percent);
+      setDiscountAmount(totals.discount);
     } catch (error) {
       console.error("Error fetching cart:", error);
     }
+  };
+
+  const computeTotals = (itemsList, quantitiesObj, config) => {
+    const subTotal = itemsList.reduce((sum, item, idx) => {
+      const qty = quantitiesObj[idx] || item.quantity || 1;
+      const price = item.productId?.price || 0;
+      return sum + price * qty;
+    }, 0);
+
+    const totalQty = itemsList.reduce((sum, item, idx) => {
+      const qty = quantitiesObj[idx] || item.quantity || 1;
+      return sum + qty;
+    }, 0);
+
+    const percent = (config?.discount?.enabled && config?.discount?.tiers)
+      ? config.discount.tiers.find(t => totalQty >= t.minQty && totalQty <= t.maxQty)?.discountPercent || 0
+      : 0;
+
+    const discount = Math.round((subTotal * percent) / 100);
+
+    return { subTotal, totalQty, percent, discount };
+  };
+
+  const updateTotals = (newQuantities) => {
+    const { subTotal, percent, discount } = computeTotals(items, newQuantities, discountConfig);
+    setTotal(subTotal);
+    setDiscountPercent(percent);
+    setDiscountAmount(discount);
+  };
+
+  const handleQuantityChange = (index, newQty) => {
+    if (newQty < 1) return;
+
+    setQuantities((prev) => {
+      const updated = { ...prev, [index]: newQty };
+      updateTotals(updated);
+      return updated;
+    });
   };
 
   const handleInputChange = (e) => {
@@ -63,6 +173,11 @@ export default function Checkout() {
       return;
     }
 
+    if (hasOutOfStock) {
+      alert("One or more items are out of stock or exceed the available quantity. Please adjust quantities before placing the order.");
+      return;
+    }
+
     if (items.length === 0) {
       alert("No items to order");
       return;
@@ -71,7 +186,14 @@ export default function Checkout() {
     setLoading(true);
 
     try {
+      // Update items with new quantities
+      const updatedItems = items.map((item, index) => ({
+        ...item,
+        quantity: quantities[index] || item.quantity || 1
+      }));
+
       const orderData = {
+        items: updatedItems,
         shippingAddress,
         paymentMode
       };
@@ -81,8 +203,8 @@ export default function Checkout() {
         await api.post("/orders/place", orderData);
       } else {
         // For buy now, we need productId and quantity
-        const productId = items[0].productId._id || items[0].productId;
-        const quantity = items[0].quantity || 1;
+        const productId = updatedItems[0].productId._id || updatedItems[0].productId;
+        const quantity = updatedItems[0].quantity || 1;
         await api.post("/orders/buy-now", {
           productId,
           quantity,
@@ -140,8 +262,8 @@ export default function Checkout() {
                 <input
                   type="tel"
                   name="phone"
-                  maxlength="10"
-                  minlength="10"
+                  maxLength="10"
+                  minLength="10"
                   value={shippingAddress.phone}
                   onChange={handleInputChange}
                   placeholder="Enter your phone number"
@@ -247,6 +369,27 @@ export default function Checkout() {
                 <span>Net Banking</span>
               </label>
             </div>
+
+            {paymentMode === "UPI" && (
+              <div className="upi-section">
+                <h4>UPI Payment Details</h4>
+                <p>Scan QR and pay to the respective seller shown below.</p>
+                {sellerPaymentDetails.map((seller) => (
+                  <div key={seller.id} className="upi-seller-card">
+                    <div className="upi-seller-meta">
+                      <strong>{seller.name}</strong>
+                      <span>Phone: {seller.phone}</span>
+                      <span>UPI ID: {seller.upiId || "Seller has not added UPI ID yet"}</span>
+                    </div>
+                    {seller.qrSrc ? (
+                      <img src={seller.qrSrc} alt={`${seller.name} UPI QR`} className="upi-qr" />
+                    ) : (
+                      <div className="upi-no-qr">No QR available</div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
@@ -264,8 +407,35 @@ export default function Checkout() {
                   />
                   <div className="order-item-info">
                     <h4>{item.productId?.name}</h4>
-                    <p>Qty: {item.quantity}</p>
-                    <p className="order-item-price">₹{item.subtotal || item.productId?.price * item.quantity}</p>
+                    <p className="item-price">Price: ₹{item.productId?.price}</p>
+                    <p className="seller-line">
+                      Seller Phone: {item.productId?.sellerId?.phone || "Not available"}
+                    </p>
+                    <div className="quantity-control">
+                      <label>Quantity:</label>
+                      <div className="qty-buttons">
+                        <button
+                          className="qty-btn"
+                          onClick={() => handleQuantityChange(index, (quantities[index] || 1) - 1)}
+                        >
+                          −
+                        </button>
+                        <input
+                          type="number"
+                          min="1"
+                          value={quantities[index] || 1}
+                          onChange={(e) => handleQuantityChange(index, parseInt(e.target.value) || 1)}
+                          className="qty-input"
+                        />
+                        <button
+                          className="qty-btn"
+                          onClick={() => handleQuantityChange(index, (quantities[index] || 1) + 1)}
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+                    <p className="order-item-price">Subtotal: ₹{(item.productId?.price || 0) * (quantities[index] || 1)}</p>
                   </div>
                 </div>
               ))}
@@ -276,19 +446,31 @@ export default function Checkout() {
                 <span>Subtotal:</span>
                 <span>₹{total}</span>
               </div>
+              {discountAmount > 0 && (
+                <div className="total-row discount-row">
+                  <span>Discount ({discountPercent}%)</span>
+                  <span>- ₹{discountAmount}</span>
+                </div>
+              )}
               <div className="total-row">
                 <span>Shipping:</span>
                 <span>Free</span>
               </div>
               <div className="total-row final-total">
                 <span>Total:</span>
-                <span>₹{total}</span>
+                <span>₹{Math.max(0, total - discountAmount)}</span>
               </div>
             </div>
 
+            {hasOutOfStock && (
+              <div className="out-of-stock-warning">
+                Some items are out of stock or exceed available quantity. Adjust the quantities or remove those items to continue.
+              </div>
+            )}
+
             <button
               onClick={handlePlaceOrder}
-              disabled={loading}
+              disabled={loading || hasOutOfStock}
               className="btn-place-order"
             >
               {loading ? "Placing Order..." : "Place Order"}

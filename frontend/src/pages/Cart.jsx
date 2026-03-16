@@ -92,7 +92,7 @@ export default function Cart() {
           </button>
         </div>
       ) : (
-        <>
+        <div className="cart-wrapper">
           <div className="cart-items">
             {items.map((item) => (
               <div key={item._id} className="cart-item">
@@ -110,7 +110,7 @@ export default function Cart() {
                       onClick={() => updateQuantity(item._id, item.quantity - 1)}
                       disabled={item.quantity <= 1}
                     >
-                      -
+                      −
                     </button>
                     <span>{item.quantity}</span>
                     <button onClick={() => updateQuantity(item._id, item.quantity + 1)}>
@@ -138,23 +138,24 @@ export default function Cart() {
           </div>
 
           <div className="cart-summary">
+            <div className="cart-summary-title">Price Details</div>
             <div className="summary-row">
               <span>Subtotal:</span>
               <span>₹{total}</span>
             </div>
             <div className="summary-row">
               <span>Shipping:</span>
-              <span>Free</span>
+              <span className="discount">Free</span>
             </div>
             <div className="summary-row total">
-              <span>Total:</span>
+              <span>Total Amount:</span>
               <span>₹{total}</span>
             </div>
             <button onClick={proceedToCheckout} className="btn-checkout">
               Proceed to Checkout
             </button>
           </div>
-        </>
+        </div>
       )}
     </div>
   );

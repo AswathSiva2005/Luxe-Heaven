@@ -1,29 +1,42 @@
-body {
-  margin: 0;
-  font-family: "Segoe UI", sans-serif;
-  background: #f1f3f6;
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply box-border;
+  }
+
+  body {
+    @apply m-0 bg-slate-50 text-slate-900 font-sans antialiased;
+    background-image: linear-gradient(120deg, #f8fafc 0%, #f1f5ff 48%, #eef8ff 100%);
+  }
+
+  a {
+    @apply text-inherit no-underline;
+  }
 }
 
-a {
-  text-decoration: none;
-  color: white;
-}
+@layer components {
+  .app-shell {
+    @apply min-h-screen;
+  }
 
-button {
-  background: #2874f0;
-  color: white;
-  border: none;
-  padding: 10px 16px;
-  cursor: pointer;
-  border-radius: 4px;
-}
+  .glass-card {
+    @apply rounded-2xl border border-slate-200/80 bg-white/80 shadow-card backdrop-blur;
+  }
 
-input {
-  padding: 10px;
-  margin: 8px 0;
-  width: 100%;
-}
+  .ui-input {
+    @apply w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-800 outline-none transition focus:border-brand-400 focus:ring-4 focus:ring-brand-100;
+  }
 
-.container {
-  padding: 20px;
+  .ui-btn-primary {
+    @apply inline-flex items-center justify-center rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white shadow-glow transition hover:-translate-y-0.5 hover:bg-brand-700;
+  }
+
+  .ui-btn-soft {
+    @apply inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100;
+  }
 }

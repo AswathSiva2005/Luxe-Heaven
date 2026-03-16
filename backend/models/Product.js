@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 
+const ALLOWED_SIZE_OPTIONS = ["XS", "S", "M", "L", "XL", "XXL", "5", "6", "7", "8", "9", "10", "11", "12"];
+
 const productSchema = new mongoose.Schema({
   productId: {
     type: String,
@@ -22,11 +24,56 @@ const productSchema = new mongoose.Schema({
     required: true,
     min: 0
   },
+  originalPrice: {
+    type: Number,
+    min: 0,
+    default: null
+  },
+  brand: {
+    type: String,
+    trim: true,
+    default: ""
+  },
+  storeName: {
+    type: String,
+    trim: true,
+    default: ""
+  },
   category: {
     type: String,
     required: true,
     trim: true
   },
+  // Optional subtype used for things like T-shirt style, pant type, shoe style, etc.
+  subCategory: {
+    type: String,
+    trim: true,
+    default: ""
+  },
+  outerMaterial: {
+    type: String,
+    trim: true,
+    default: ""
+  },
+  occasion: {
+    type: String,
+    trim: true,
+    default: ""
+  },
+  casualType: {
+    type: String,
+    trim: true,
+    default: ""
+  },
+  manufacturerInfo: {
+    type: String,
+    trim: true,
+    default: ""
+  },
+  keyHighlights: [{
+    type: String,
+    trim: true
+  }],
   releaseDate: {
     type: Date,
     required: true
@@ -54,7 +101,7 @@ const productSchema = new mongoose.Schema({
   }],
   availableSizes: [{
     type: String,
-    enum: ["XS", "S", "M", "L", "XL", "XXL"],
+    enum: ALLOWED_SIZE_OPTIONS,
     required: true
   }],
   availableColors: [{
@@ -67,9 +114,18 @@ const productSchema = new mongoose.Schema({
     default: false
   },
   // Keep old image field for backward compatibility
-  image: String
+  image: String,
+  // Seller who added this product
+  sellerId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    default: null
+  }
 }, {
   timestamps: true
 });
+
+// Index category for faster filtering
+productSchema.index({ category: 1 });
 
 module.exports = mongoose.model("Product", productSchema);
