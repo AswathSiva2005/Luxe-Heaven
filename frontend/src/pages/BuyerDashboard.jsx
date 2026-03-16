@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
+import { buildUploadUrl } from "../utils/assetUrl";
 import "./Dashboard.css";
 
 export default function BuyerDashboard() {
@@ -108,7 +109,7 @@ export default function BuyerDashboard() {
         <div className="dashboard-profile-badge">
           {profileImage ? (
             <img
-              src={`http://localhost:5000/uploads/profiles/${profileImage}`}
+              src={buildUploadUrl(`uploads/profiles/${profileImage}`)}
               alt="Profile"
               onError={(e) => {
                 e.currentTarget.src = "https://via.placeholder.com/48x48?text=U";

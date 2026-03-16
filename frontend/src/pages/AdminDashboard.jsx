@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import api from "../services/api";
+import { buildUploadUrl } from "../utils/assetUrl";
 import "./AdminDashboard.css";
 
 export default function AdminDashboard() {
@@ -106,7 +107,7 @@ export default function AdminDashboard() {
           <div className="admin-avatar" title={adminName}>
             {profileImage ? (
               <img
-                src={`http://localhost:5000/uploads/profiles/${profileImage}`}
+                src={buildUploadUrl(`uploads/profiles/${profileImage}`)}
                 alt="Admin"
                 onError={(e) => {
                   e.currentTarget.src = "https://via.placeholder.com/42x42?text=A";

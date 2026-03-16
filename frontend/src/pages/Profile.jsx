@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
+import { buildUploadUrl } from "../utils/assetUrl";
 import "./Profile.css";
 
 export default function Profile() {
@@ -129,7 +130,7 @@ export default function Profile() {
             <div className="profile-image-preview">
               {(imagePreview || form.profileImage) ? (
                 <img
-                  src={imagePreview || `http://localhost:5000/uploads/profiles/${form.profileImage}`}
+                  src={imagePreview || buildUploadUrl(`uploads/profiles/${form.profileImage}`)}
                   alt="Profile"
                   onError={(e) => {
                     e.currentTarget.src = "https://via.placeholder.com/120x120?text=User";

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import companyLogo from "../assets/company logo.jpeg";
 import api from "../services/api";
+import { buildUploadUrl } from "../utils/assetUrl";
 
 export default function Navbar() {
   const role = localStorage.getItem("role");
@@ -100,7 +101,7 @@ export default function Navbar() {
               >
                 {profileImage ? (
                   <img
-                    src={`http://localhost:5000/uploads/profiles/${profileImage}`}
+                    src={buildUploadUrl(`uploads/profiles/${profileImage}`)}
                     alt="Profile"
                     className="h-full w-full object-cover"
                   />
