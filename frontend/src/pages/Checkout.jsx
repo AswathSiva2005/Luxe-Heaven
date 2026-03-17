@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import api from "../services/api";
 import { useNavigate, useLocation } from "react-router-dom";
 import { buildUploadUrl } from "../utils/assetUrl";
+import { QRCodeSVG } from "qrcode.react";
 import "./Checkout.css";
 
 export default function Checkout() {
@@ -16,6 +17,8 @@ export default function Checkout() {
   const [discountAmount, setDiscountAmount] = useState(0);
   const [discountConfig, setDiscountConfig] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  const isValidUpiId = (upiId = "") => /^[a-zA-Z0-9.\-_]{2,256}@[a-zA-Z]{2,64}$/.test(upiId.trim());
 
   const [shippingAddress, setShippingAddress] = useState({
     name: "",
@@ -32,13 +35,10 @@ export default function Checkout() {
     const seller = item.productId?.sellerId;
     if (!seller?._id || acc.some((entry) => entry.id === seller._id)) return acc;
 
-    const upiId = seller.sellerUpiId || "";
+    const upiId = (seller.sellerUpiId || "").trim();
     const sellerName = seller.name || `Seller ${index + 1}`;
-    const upiLink = upiId
+    const upiLink = isValidUpiId(upiId)
       ? `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(sellerName)}`
-      : "";
-    const qrSrc = upiLink
-      ? `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(upiLink)}`
       : "";
 
     acc.push({
@@ -46,7 +46,7 @@ export default function Checkout() {
       name: sellerName,
       phone: seller.phone || "Not available",
       upiId,
-      qrSrc,
+      upiLink,
     });
 
     return acc;
@@ -382,8 +382,13 @@ export default function Checkout() {
                       <span>Phone: {seller.phone}</span>
                       <span>UPI ID: {seller.upiId || "Seller has not added UPI ID yet"}</span>
                     </div>
-                    {seller.qrSrc ? (
-                      <img src={seller.qrSrc} alt={`${seller.name} UPI QR`} className="upi-qr" />
+                    {seller.upiLink ? (
+                      <div className="upi-qr-wrap">
+                        <QRCodeSVG value={seller.upiLink} size={100} className="upi-qr" includeMargin={false} />
+                        <a className="upi-pay-link" href={seller.upiLink}>
+                          Open in UPI App
+                        </a>
+                      </div>
                     ) : (
                       <div className="upi-no-qr">No QR available</div>
                     )}

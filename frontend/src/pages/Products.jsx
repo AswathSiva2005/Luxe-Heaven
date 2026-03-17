@@ -202,7 +202,7 @@ export default function Products() {
         <motion.div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3" variants={gridVariants} initial="hidden" animate="visible">
           {products.map((p) => (
             <motion.div
-              className="glass-card cursor-pointer overflow-hidden"
+              className="glass-card cursor-pointer"
               key={p._id}
               variants={cardVariants}
               whileHover={{ y: -8, scale: 1.01 }}
@@ -217,7 +217,7 @@ export default function Products() {
                 }
               }}
             >
-              <div className="h-56 overflow-hidden bg-slate-100">
+              <div className="h-56 overflow-hidden rounded-t-2xl bg-slate-100">
                 <img
                   src={buildUploadUrl(`uploads/${p.image}`)}
                   alt={p.name}
@@ -243,9 +243,9 @@ export default function Products() {
                 )}
 
                 {role === "buyer" || role === "user" || !role ? (
-                  <div className="mt-4 grid grid-cols-2 gap-2">
+                  <div className="mt-4 grid grid-cols-2 gap-2 pb-1">
                     <button
-                      className="ui-btn-soft"
+                      className="ui-btn-soft w-full px-2"
                       onClick={(e) => {
                         e.stopPropagation();
                         openProductDetails(p._id);
@@ -256,7 +256,7 @@ export default function Products() {
                     </button>
 
                     <button
-                      className="ui-btn-soft"
+                      className="ui-btn-soft w-full px-2"
                       onClick={(e) => {
                         e.stopPropagation();
                         addToCart(p._id);
@@ -268,7 +268,7 @@ export default function Products() {
                     </button>
 
                     <button
-                      className="ui-btn-primary"
+                      className="ui-btn-primary w-full px-2"
                       onClick={(e) => {
                         e.stopPropagation();
                         buyNow(p);
@@ -280,7 +280,7 @@ export default function Products() {
                     </button>
 
                     <button
-                      className="ui-btn-soft"
+                      className="ui-btn-soft w-full px-2"
                       onClick={(e) => {
                         e.stopPropagation();
                         addToWishlist(p._id);
