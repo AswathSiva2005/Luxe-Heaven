@@ -133,7 +133,7 @@ export default function Profile() {
                   src={imagePreview || buildUploadUrl(`uploads/profiles/${form.profileImage}`)}
                   alt="Profile"
                   onError={(e) => {
-                    e.currentTarget.src = "https://via.placeholder.com/120x120?text=User";
+                    e.currentTarget.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect width='100%25' height='100%25' fill='%23e2e8f0'/%3E%3Ctext x='50%25' y='53%25' dominant-baseline='middle' text-anchor='middle' fill='%23475569' font-size='34' font-family='Arial'%3EU%3C/text%3E%3C/svg%3E";
                   }}
                 />
               ) : (

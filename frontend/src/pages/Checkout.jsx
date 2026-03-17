@@ -18,7 +18,7 @@ export default function Checkout() {
   const [discountConfig, setDiscountConfig] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const isValidUpiId = (upiId = "") => /^[a-zA-Z0-9.\-_]{2,256}@[a-zA-Z]{2,64}$/.test(upiId.trim());
+  const isValidUpiId = (upiId = "") => /^[^\s@]+@[^\s@]+$/.test(upiId.trim());
 
   const [shippingAddress, setShippingAddress] = useState({
     name: "",
@@ -33,18 +33,19 @@ export default function Checkout() {
 
   const sellerPaymentDetails = items.reduce((acc, item, index) => {
     const seller = item.productId?.sellerId;
-    if (!seller?._id || acc.some((entry) => entry.id === seller._id)) return acc;
+    const sellerId = typeof seller === "string" ? seller : seller?._id;
+    if (!sellerId || acc.some((entry) => entry.id === sellerId)) return acc;
 
-    const upiId = (seller.sellerUpiId || "").trim();
-    const sellerName = seller.name || `Seller ${index + 1}`;
+    const upiId = String(seller?.sellerUpiId || item.productId?.sellerUpiId || "").trim();
+    const sellerName = seller?.name || `Seller ${index + 1}`;
     const upiLink = isValidUpiId(upiId)
       ? `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(sellerName)}`
       : "";
 
     acc.push({
-      id: seller._id,
+      id: sellerId,
       name: sellerName,
-      phone: seller.phone || "Not available",
+      phone: seller?.phone || "Not available",
       upiId,
       upiLink,
     });
@@ -375,6 +376,9 @@ export default function Checkout() {
               <div className="upi-section">
                 <h4>UPI Payment Details</h4>
                 <p>Scan QR and pay to the respective seller shown below.</p>
+                {sellerPaymentDetails.length === 0 && (
+                  <div className="upi-no-qr">No seller UPI details found for current items.</div>
+                )}
                 {sellerPaymentDetails.map((seller) => (
                   <div key={seller.id} className="upi-seller-card">
                     <div className="upi-seller-meta">

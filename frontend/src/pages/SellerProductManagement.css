@@ -378,6 +378,9 @@
 
 .product-info {
   padding: 16px;
+  display: flex;
+  flex-direction: column;
+  min-height: 170px;
 }
 
 .product-info h3 {
@@ -445,7 +448,8 @@
 }
 
 .product-actions {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr;
   gap: 8px;
   margin-top: 14px;
 }
