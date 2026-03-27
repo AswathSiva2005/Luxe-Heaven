@@ -14,7 +14,7 @@ Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$PSScriptRoot
 Write-Host ""
 Write-Host "========================================" -ForegroundColor Green
 Write-Host "Both servers are starting..." -ForegroundColor Green
-Write-Host "Backend: http://localhost:5000" -ForegroundColor Green
+Write-Host "Backend: http://13.51.86.174:5000" -ForegroundColor Green
 Write-Host "Frontend: http://localhost:5173 (or check terminal)" -ForegroundColor Green
 Write-Host "========================================" -ForegroundColor Green
 Write-Host ""

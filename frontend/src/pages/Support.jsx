@@ -277,7 +277,7 @@ export default function Support() {
                         {msg.attachments.map((file) => (
                           <a
                             key={file}
-                            href={`http://localhost:5000/uploads/support/${file}`}
+                            href={`http://13.51.86.174:5000/uploads/support/${file}`}
                             target="_blank"
                             rel="noreferrer"
                           >

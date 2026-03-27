@@ -15,7 +15,7 @@ start "Frontend Server" cmd /k "cd frontend && npm run dev"
 echo.
 echo ========================================
 echo Both servers are starting...
-echo Backend: http://localhost:5000
+echo Backend: http://13.51.86.174:5000
 echo Frontend: http://localhost:5173 (or check terminal)
 echo ========================================
 echo.

@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const rawApiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const rawApiUrl = import.meta.env.VITE_API_URL || "http://13.51.86.174:5000/api";
 const normalizedApiUrl = rawApiUrl.replace(/\/+$/, "");
 const apiBaseUrl = normalizedApiUrl.endsWith("/api")
   ? normalizedApiUrl
